@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,18 +18,23 @@ import java.util.List;
 
 public class CrimeListFragment extends Fragment
 {
-    private class CrimeHolder extends RecyclerView.ViewHolder
+    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener
     {
         private Crime m_crime;
         private TextView m_titleTextView;
         private TextView m_dateTextView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent)
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int layoutId)
         {
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));
-
+            super(inflater.inflate(layoutId, parent, false));
+            itemView.setOnClickListener(this);
             m_titleTextView = itemView.findViewById(R.id.crime_title);
             m_dateTextView = itemView.findViewById(R.id.crime_date);
+            if(layoutId == R.layout.list_item_crime_required_police)
+            {
+                Button callPoliceButton = itemView.findViewById(R.id.police_call);
+                callPoliceButton.setOnClickListener(v -> Toast.makeText(getActivity(),"Called Police",Toast.LENGTH_SHORT).show());
+            }
         }
 
         public void Bind(Crime crime)
@@ -36,6 +43,12 @@ public class CrimeListFragment extends Fragment
 
             m_titleTextView.setText(crime.GetTitle());
             m_dateTextView.setText(crime.GetDate().toString());
+        }
+
+        @Override
+        public void onClick(View v)
+        {
+            Toast.makeText(getActivity(),m_crime.GetTitle() + " clicked!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -54,7 +67,19 @@ public class CrimeListFragment extends Fragment
         {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-            return new CrimeHolder(inflater, parent);
+            return new CrimeHolder(inflater, parent, viewType);
+        }
+
+        @Override
+        public int getItemViewType(int position)
+        {
+            Crime currCrime = m_crimeList.get(position);
+            if(currCrime.isRequiredPolice())
+            {
+                return R.layout.list_item_crime_required_police;
+            }
+
+            return R.layout.list_item_crime;
         }
 
         @Override

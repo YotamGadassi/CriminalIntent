@@ -24,6 +24,7 @@ public class CrimeLab
             Crime crime = new Crime();
             crime.SetTitle("Crime #" + i);
             crime.SetSolved(i % 2 == 0);
+            crime.setRequiredPolice(i % 2 == 0);
             m_crimes.add(crime);
         }
     }
