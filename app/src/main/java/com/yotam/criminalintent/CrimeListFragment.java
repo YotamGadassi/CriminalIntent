@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ public class CrimeListFragment extends Fragment
         private Crime m_crime;
         private TextView m_titleTextView;
         private TextView m_dateTextView;
+        private ImageView m_handcuffView;
 
         public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int layoutId)
         {
@@ -30,11 +32,7 @@ public class CrimeListFragment extends Fragment
             itemView.setOnClickListener(this);
             m_titleTextView = itemView.findViewById(R.id.crime_title);
             m_dateTextView = itemView.findViewById(R.id.crime_date);
-            if(layoutId == R.layout.list_item_crime_required_police)
-            {
-                Button callPoliceButton = itemView.findViewById(R.id.police_call);
-                callPoliceButton.setOnClickListener(v -> Toast.makeText(getActivity(),"Called Police",Toast.LENGTH_SHORT).show());
-            }
+            m_handcuffView = itemView.findViewById(R.id.crime_solved);
         }
 
         public void Bind(Crime crime)
@@ -43,6 +41,7 @@ public class CrimeListFragment extends Fragment
 
             m_titleTextView.setText(crime.GetTitle());
             m_dateTextView.setText(crime.GetDate().toString());
+            m_handcuffView.setVisibility(crime.IsSolved() ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -67,19 +66,7 @@ public class CrimeListFragment extends Fragment
         {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-            return new CrimeHolder(inflater, parent, viewType);
-        }
-
-        @Override
-        public int getItemViewType(int position)
-        {
-            Crime currCrime = m_crimeList.get(position);
-            if(currCrime.isRequiredPolice())
-            {
-                return R.layout.list_item_crime_required_police;
-            }
-
-            return R.layout.list_item_crime;
+            return new CrimeHolder(inflater, parent, R.layout.list_item_crime);
         }
 
         @Override
