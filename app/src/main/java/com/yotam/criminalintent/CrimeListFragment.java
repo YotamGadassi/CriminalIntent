@@ -48,7 +48,8 @@ public class CrimeListFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            Intent intent = CrimeActivity.newIntent(getActivity(), m_crime.GetId());
+            m_lastPositionClicked = getAdapterPosition();
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), m_lastPositionClicked);
             startActivity(intent);
         }
     }
@@ -67,7 +68,6 @@ public class CrimeListFragment extends Fragment
         public CrimeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
         {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-
             return new CrimeHolder(inflater, parent, R.layout.list_item_crime);
         }
 
@@ -87,6 +87,7 @@ public class CrimeListFragment extends Fragment
 
     private CrimeAdapter m_crimeAdapter;
     private RecyclerView m_recyclerView;
+    private int m_lastPositionClicked;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -123,7 +124,7 @@ public class CrimeListFragment extends Fragment
         }
         else
         {
-            m_crimeAdapter.notifyDataSetChanged();
+            m_crimeAdapter.notifyItemChanged(m_lastPositionClicked);
         }
     }
 }

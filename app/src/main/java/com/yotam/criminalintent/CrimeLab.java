@@ -1,8 +1,11 @@
 package com.yotam.criminalintent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CrimeLab
 {
@@ -18,35 +21,28 @@ public class CrimeLab
 
     private CrimeLab()
     {
-        m_crimes = new ArrayList<>();
+        m_crimes = new HashMap<>(100);
         for (int i = 0; i < 100; ++i)
         {
             Crime crime = new Crime();
             crime.SetTitle("Crime #" + i);
             crime.SetSolved(i % 2 == 0);
             crime.setRequiredPolice(i % 2 == 0);
-            m_crimes.add(crime);
+            m_crimes.put(crime.GetId(), crime);
         }
     }
 
     private static CrimeLab s_instance;
 
-    private List<Crime> m_crimes;
+    private Map<UUID, Crime> m_crimes;
 
     public List<Crime> getCrimes()
     {
-        return m_crimes;
+        return new ArrayList<>(m_crimes.values());
     }
 
     public Crime getCrime(UUID crimeId)
     {
-        for (Crime crime : m_crimes)
-        {
-            if (crimeId.equals(crime.GetId()))
-            {
-                return crime;
-            }
-        }
-        return null;
+        return m_crimes.get(crimeId);
     }
 }
