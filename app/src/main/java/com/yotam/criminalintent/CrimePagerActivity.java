@@ -62,25 +62,11 @@ public class CrimePagerActivity extends AppCompatActivity
         });
 
         m_firstButton = findViewById(R.id.first_crime_button);
-        m_firstButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                m_viewPager.setCurrentItem(0);
-            }
-        });
+        m_firstButton.setOnClickListener(v -> m_viewPager.setCurrentItem(0));
 
 
         m_lastButton = findViewById(R.id.last_crime_button);
-        m_lastButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                m_viewPager.setCurrentItem(m_viewPager.getAdapter().getCount() - 1);
-            }
-        });
+        m_lastButton.setOnClickListener(v -> m_viewPager.setCurrentItem(m_viewPager.getAdapter().getCount() - 1));
         m_viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {
             @Override
@@ -102,7 +88,8 @@ public class CrimePagerActivity extends AppCompatActivity
         if (index == 0)
         {
             m_firstButton.setEnabled(false);
-        } else if (index == m_viewPager.getAdapter().getCount() - 1)
+        }
+        if (index == m_viewPager.getAdapter().getCount() - 1)
         {
             m_lastButton.setEnabled(false);
         }
