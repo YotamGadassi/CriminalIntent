@@ -1,5 +1,7 @@
 package com.yotam.criminalintent;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,8 +13,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
@@ -25,14 +33,14 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment
 {
     private Crime m_crime;
-
     private EditText m_titleField;
     private Button m_dateButton;
     private CheckBox m_solvedCheckBox;
 
+    private ActivityResultLauncher<Intent> m_datePickerResultLauncher;
+
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
-
 
     public static CrimeFragment newInstance(UUID crime_id)
     {
@@ -50,11 +58,27 @@ public class CrimeFragment extends Fragment
         //UUID crimeId = (UUID)getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         m_crime = CrimeLab.getInstance().getCrime(crimeId);
+
+        m_datePickerResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                                                               result ->
+                                                               {
+                                                                   if (result.getResultCode()
+                                                                       == Activity.RESULT_OK)
+                                                                   {
+                                                                       Date date = (Date) result.getData()
+                                                                                                .getExtras()
+                                                                                                .getSerializable(
+                                                                                                        DatePickerFragment.DATE_FOR_RESULT_KEY);
+                                                                       updateDate(date);
+                                                                   }
+                                                               });
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_crime, container, false);
         setWidgets(view);
@@ -87,23 +111,17 @@ public class CrimeFragment extends Fragment
         m_dateButton = view.findViewById(R.id.crime_date);
         m_dateButton.setText(m_crime.GetDate().toString());
         m_dateButton.setOnClickListener(v ->
-        {
-            FragmentManager fragmentManager = getParentFragmentManager();
-            DatePickerFragment dialog = DatePickerFragment.newInstance(m_crime.GetDate());
-            getParentFragmentManager().setFragmentResultListener(DatePickerFragment.REQUEST_CODE_FOR_DATE_RESULT, this, new FragmentResultListener()
-            {
-                @Override
-                public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
-                {
-                    updateDate((Date) result.getSerializable(DatePickerFragment.DATE_FROM_BUNDLE));
-                }
-            });
-            dialog.show(fragmentManager, DIALOG_DATE);
-        });
+                                        {
+                                            Intent datePickerIntent = DatePickerActivity.newIntent(
+                                                    getActivity(),
+                                                    m_crime.GetDate());
+                                            m_datePickerResultLauncher.launch(datePickerIntent);
+                                        });
 
         m_solvedCheckBox = view.findViewById(R.id.crime_solved);
         m_solvedCheckBox.setChecked(m_crime.IsSolved());
-        m_solvedCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> m_crime.SetSolved(isChecked));
+        m_solvedCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> m_crime.SetSolved(
+                isChecked));
 
     }
 
