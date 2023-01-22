@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 
@@ -32,6 +36,7 @@ import java.util.UUID;
 
 public class CrimeFragment extends Fragment
 {
+    public static final String IS_DELETED = "IsCrimeDeleted";
     private Crime m_crime;
     private EditText m_titleField;
     private Button m_dateButton;
@@ -55,6 +60,7 @@ public class CrimeFragment extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         //UUID crimeId = (UUID)getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         m_crime = CrimeLab.getInstance().getCrime(crimeId);
@@ -83,6 +89,33 @@ public class CrimeFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_crime, container, false);
         setWidgets(view);
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.delete_crime:
+            {
+                CrimeLab crimeLab = CrimeLab.getInstance();
+                crimeLab.removeCrime(m_crime);
+
+                FragmentActivity parentActivity = getActivity();
+                Intent parentIntent = parentActivity.getIntent();
+                parentIntent.putExtra(IS_DELETED, true);
+                parentActivity.setResult(Activity.RESULT_OK, parentIntent);
+                parentActivity.finish();
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void setWidgets(View view)

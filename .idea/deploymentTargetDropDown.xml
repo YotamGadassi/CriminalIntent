@@ -7,11 +7,11 @@
         <deviceKey>
           <Key>
             <type value="VIRTUAL_DEVICE_PATH" />
-            <value value="D:\Yotam_Programming\.android\avd\10.1_WXGA_Tablet_API_26.avd" />
+            <value value="C:\Users\yotamg\.android\avd\Pixel_6_API_30.avd" />
           </Key>
         </deviceKey>
       </Target>
     </targetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2023-01-21T22:15:54.988834100Z" />
+    <timeTargetWasSelectedWithDropDown value="2023-01-22T11:20:13.619949100Z" />
   </component>
 </project>

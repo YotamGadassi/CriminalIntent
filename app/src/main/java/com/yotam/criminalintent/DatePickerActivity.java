@@ -11,7 +11,6 @@ public class DatePickerActivity extends SingleFragmentActivity
 {
     private static final String DATE_FOR_PICKER_KEY = "DateKeyForPicker";
 
-
     public static Intent newIntent(Context packageContext, Date date)
     {
         return new Intent(packageContext, DatePickerActivity.class).putExtra(DATE_FOR_PICKER_KEY, date);
@@ -21,8 +20,6 @@ public class DatePickerActivity extends SingleFragmentActivity
     {
         return (Date)intent.getSerializableExtra(DATE_FOR_PICKER_KEY);
     }
-
-
 
     @Override
     protected Fragment createFragment()

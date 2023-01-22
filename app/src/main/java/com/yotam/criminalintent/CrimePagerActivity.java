@@ -3,7 +3,6 @@ package com.yotam.criminalintent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -27,9 +26,9 @@ public class CrimePagerActivity extends AppCompatActivity
 
     private static final String EXTRA_CRIME_INDEX = "com.yotam.criminalintent.crime_id";
 
-    public static Intent newIntent(Context packageContext, int crime_index)
+    public static Intent newIntent(Context packageContext, int crimeIndex)
     {
-        return new Intent(packageContext, CrimePagerActivity.class).putExtra(EXTRA_CRIME_INDEX, crime_index);
+        return new Intent(packageContext, CrimePagerActivity.class).putExtra(EXTRA_CRIME_INDEX, crimeIndex);
     }
 
     @Override
