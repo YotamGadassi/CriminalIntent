@@ -37,6 +37,8 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment
 {
     public static final String IS_DELETED = "IsCrimeDeleted";
+    public static final String DELETED_CRIME_UUID = "DeletedCrimeUuid";
+
     private Crime m_crime;
     private EditText m_titleField;
     private Button m_dateButton;
@@ -73,8 +75,7 @@ public class CrimeFragment extends Fragment
                                                                    {
                                                                        Date date = (Date) result.getData()
                                                                                                 .getExtras()
-                                                                                                .getSerializable(
-                                                                                                        DatePickerFragment.DATE_FOR_RESULT_KEY);
+                                                                                                .getSerializable(DatePickerFragment.DATE_FOR_RESULT_KEY);
                                                                        updateDate(date);
                                                                    }
                                                                });
@@ -103,12 +104,10 @@ public class CrimeFragment extends Fragment
         {
             case R.id.delete_crime:
             {
-                CrimeLab crimeLab = CrimeLab.getInstance();
-                crimeLab.removeCrime(m_crime);
-
                 FragmentActivity parentActivity = getActivity();
                 Intent parentIntent = parentActivity.getIntent();
                 parentIntent.putExtra(IS_DELETED, true);
+                parentIntent.putExtra(DELETED_CRIME_UUID, m_crime.GetId());
                 parentActivity.setResult(Activity.RESULT_OK, parentIntent);
                 parentActivity.finish();
                 return true;

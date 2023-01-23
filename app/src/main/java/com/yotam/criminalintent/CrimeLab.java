@@ -1,12 +1,7 @@
 package com.yotam.criminalintent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.UUID;
 
 public class CrimeLab
@@ -23,8 +18,7 @@ public class CrimeLab
 
     private CrimeLab()
     {
-        m_crimesNodes = new HashMap<>();
-        m_crimes = new LinkedList<>();
+        m_crimeList = new ArrayList<>();
 
         for (int i = 0; i < 5; ++i)
         {
@@ -37,44 +31,50 @@ public class CrimeLab
     }
     public List<Crime> getCrimes()
     {
-        return new ArrayList<>(m_crimes);
+        return new ArrayList<>(m_crimeList);
     }
 
     public Crime getCrime(UUID crimeId)
     {
-        ListIterator<Crime> itr = m_crimesNodes.get(crimeId);
-        return itr.previous();
+        int crimeIndex = getCrimeIndex(crimeId);
+        if(crimeIndex < 0)
+        {
+            return null;
+        }
+        return m_crimeList.get(crimeIndex);
     }
 
-    public int getCrimeIndex(Crime crime)
+    public int getCrimeIndex(UUID crimeId)
     {
-        ListIterator<Crime> itr = m_crimesNodes.get(crime.GetId());
-        if(null == itr)
+        for (int i = 0; i < m_crimeList.size(); ++i)
         {
-            return -1;
+            Crime currCrime = m_crimeList.get(i);
+            UUID currCrimeId = currCrime.GetId();
+            if(crimeId.equals(currCrimeId))
+            {
+                return i;
+            }
         }
-        return itr.previousIndex();
+        return -1;
     }
 
     public void addCrime(Crime crime)
     {
-        int currIndex = m_crimes.size();
-        m_crimes.addLast(crime);
-        ListIterator<Crime> lastIterator = m_crimes.listIterator(currIndex);
-        m_crimesNodes.put(crime.GetId(), lastIterator);
+        m_crimeList.add(crime);
     }
 
     public void removeCrime(Crime crime)
     {
         UUID crimeId = crime.GetId();
-        Iterator<Crime> crimeNode = m_crimesNodes.get(crimeId);
-        m_crimesNodes.remove(crimeId);
-        crimeNode.remove();
+        int crimeIndex = getCrimeIndex(crimeId);
+        if(0 <= crimeIndex)
+        {
+            m_crimeList.remove(crimeIndex);
+        }
     }
 
     private static CrimeLab s_instance;
 
-    private Map<UUID, ListIterator<Crime>> m_crimesNodes;
+    private ArrayList<Crime> m_crimeList;
 
-    private LinkedList<Crime> m_crimes;
 }

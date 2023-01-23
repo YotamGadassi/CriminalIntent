@@ -12,8 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -25,8 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class CrimeListFragment extends Fragment
 {
@@ -61,7 +59,7 @@ public class CrimeListFragment extends Fragment
         {
             m_lastPositionClicked = getAdapterPosition();
             Intent intent = CrimePagerActivity.newIntent(getActivity(), m_lastPositionClicked);
-            m_launcher.launch(intent);
+            m_CrimeFragmentLauncher.launch(intent);
         }
     }
 
@@ -114,20 +112,30 @@ public class CrimeListFragment extends Fragment
     private int m_lastPositionClicked;
     private boolean m_isSubtitleVisible;
 
-    private ActivityResultLauncher<Intent> m_launcher;
+    private ActivityResultLauncher<Intent> m_CrimeFragmentLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        m_launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult()
+        initCrimeFragmentLauncher();
+    }
+
+    private void initCrimeFragmentLauncher()
+    {
+        m_CrimeFragmentLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult()
                 , result ->
                 {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         boolean isCrimeDeleted = result.getData().getExtras().getBoolean(CrimeFragment.IS_DELETED, false);
-                        if (isCrimeDeleted) {
-                            m_crimeAdapter.removeCrime(m_lastPositionClicked);
+                        if (isCrimeDeleted)
+                        {
+                            UUID crimeUUID = (UUID) result.getData().getExtras().getSerializable(CrimeFragment.DELETED_CRIME_UUID);
+                            if(null != crimeUUID)
+                            {
+                                removeCrime(crimeUUID);
+                            }
                         }
                     }
                 });
@@ -180,12 +188,12 @@ public class CrimeListFragment extends Fragment
             {
                 Crime crime = new Crime();
                 CrimeLab.getInstance().addCrime(crime);
-                int crimeIndex = CrimeLab.getInstance().getCrimeIndex(crime);
+                int crimeIndex = CrimeLab.getInstance().getCrimeIndex(crime.GetId());
                 Intent intent = CrimePagerActivity.newIntent(getActivity(), crimeIndex);
                 m_crimeAdapter.addCrime(crime);
                 m_crimeAdapter.notifyItemInserted(crimeIndex);
                 m_lastPositionClicked = crimeIndex;
-                startActivity(intent);
+                m_CrimeFragmentLauncher.launch(intent);
                 return true;
             }
             case R.id.show_subtitle:
@@ -230,6 +238,15 @@ public class CrimeListFragment extends Fragment
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setSubtitle(subtitle);
+    }
+
+    private void removeCrime(UUID crimeId)
+    {
+        CrimeLab crimeLab = CrimeLab.getInstance();
+        Crime crime = crimeLab.getCrime(crimeId);
+        int crimeIndex = crimeLab.getCrimeIndex(crimeId);
+        crimeLab.removeCrime(crime);
+        m_crimeAdapter.removeCrime(crimeIndex);
     }
 
 }
