@@ -65,7 +65,7 @@ public class CrimeFragment extends Fragment
         setHasOptionsMenu(true);
         //UUID crimeId = (UUID)getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
-        m_crime = CrimeLab.getInstance().getCrime(crimeId);
+        m_crime = CrimeLab.getInstance(getActivity()).getCrime(crimeId);
 
         m_datePickerResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                                                                result ->

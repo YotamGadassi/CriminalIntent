@@ -124,21 +124,30 @@ public class CrimeListFragment extends Fragment
 
     private void initCrimeFragmentLauncher()
     {
-        m_CrimeFragmentLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult()
-                , result ->
-                {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        boolean isCrimeDeleted = result.getData().getExtras().getBoolean(CrimeFragment.IS_DELETED, false);
-                        if (isCrimeDeleted)
-                        {
-                            UUID crimeUUID = (UUID) result.getData().getExtras().getSerializable(CrimeFragment.DELETED_CRIME_UUID);
-                            if(null != crimeUUID)
-                            {
-                                removeCrime(crimeUUID);
-                            }
-                        }
-                    }
-                });
+        m_CrimeFragmentLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                                                            result ->
+                                                            {
+                                                                if (result.getResultCode()
+                                                                    == Activity.RESULT_OK)
+                                                                {
+                                                                    boolean isCrimeDeleted = result.getData()
+                                                                                                   .getExtras()
+                                                                                                   .getBoolean(
+                                                                                                           CrimeFragment.IS_DELETED,
+                                                                                                           false);
+                                                                    if (isCrimeDeleted)
+                                                                    {
+                                                                        UUID crimeUUID = (UUID) result.getData()
+                                                                                                      .getExtras()
+                                                                                                      .getSerializable(
+                                                                                                              CrimeFragment.DELETED_CRIME_UUID);
+                                                                        if (null != crimeUUID)
+                                                                        {
+                                                                            removeCrime(crimeUUID);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            });
     }
 
     @Override
@@ -151,14 +160,16 @@ public class CrimeListFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
         m_recyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         m_recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
-        if(null != savedInstanceState)
+        if (null != savedInstanceState)
         {
             m_isSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE, false);
         }
@@ -167,7 +178,8 @@ public class CrimeListFragment extends Fragment
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
         super.onSaveInstanceState(outState);
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, m_isSubtitleVisible);
     }
@@ -187,8 +199,9 @@ public class CrimeListFragment extends Fragment
             case R.id.new_crime:
             {
                 Crime crime = new Crime();
-                CrimeLab.getInstance().addCrime(crime);
-                int crimeIndex = CrimeLab.getInstance().getCrimeIndex(crime.GetId());
+                CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+                crimeLab.addCrime(crime);
+                int crimeIndex = crimeLab.getCrimeIndex(crime.GetId());
                 Intent intent = CrimePagerActivity.newIntent(getActivity(), crimeIndex);
                 m_crimeAdapter.addCrime(crime);
                 m_crimeAdapter.notifyItemInserted(crimeIndex);
@@ -209,9 +222,9 @@ public class CrimeListFragment extends Fragment
 
     private void updateUI()
     {
-        if(null == m_crimeAdapter)
+        if (null == m_crimeAdapter)
         {
-            CrimeLab crimeLab = CrimeLab.getInstance();
+            CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
             m_crimeAdapter = new CrimeAdapter(crimeLab.getCrimes());
             m_recyclerView.setAdapter(m_crimeAdapter);
         }
@@ -223,12 +236,14 @@ public class CrimeListFragment extends Fragment
 
     private void updateSubtitle()
     {
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
         String subtitle;
-        if(m_isSubtitleVisible)
+        if (m_isSubtitleVisible)
         {
-            subtitle = getString(R.string.subtitle_format, crimeCount);
+            subtitle = getResources().getQuantityString(R.plurals.subtitle_plural,
+                                                        crimeCount,
+                                                        crimeCount);
         }
         else
         {
@@ -242,7 +257,7 @@ public class CrimeListFragment extends Fragment
 
     private void removeCrime(UUID crimeId)
     {
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         Crime crime = crimeLab.getCrime(crimeId);
         int crimeIndex = crimeLab.getCrimeIndex(crimeId);
         crimeLab.removeCrime(crime);

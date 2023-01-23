@@ -40,7 +40,7 @@ public class CrimePagerActivity extends AppCompatActivity
         int crimeIndex = (int) getIntent().getSerializableExtra(EXTRA_CRIME_INDEX);
 
         m_viewPager = findViewById(R.id.crimes_container);
-        m_crimeList = CrimeLab.getInstance().getCrimes();
+        m_crimeList = CrimeLab.getInstance(this).getCrimes();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         m_viewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager)
