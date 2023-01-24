@@ -124,6 +124,7 @@ public class CrimeLab
         contentValues.put(CrimeDbSchema.CrimeTable.Cols.TITLE, crime.GetTitle());
         contentValues.put(CrimeDbSchema.CrimeTable.Cols.DATE, crime.GetDate().getTime());
         contentValues.put(CrimeDbSchema.CrimeTable.Cols.SOLVED, crime.IsSolved());
+        contentValues.put(CrimeDbSchema.CrimeTable.Cols.SUSPECT, crime.GetSuspect());
 
         return contentValues;
     }

@@ -24,6 +24,10 @@ public class Crime
     {
         return m_date;
     }
+    public String GetSuspect()
+    {
+        return m_suspect;
+    }
 
     public boolean IsSolved()
     {
@@ -54,7 +58,10 @@ public class Crime
     {
         m_solved = solved;
     }
-
+    public void SetSuspect(String suspect)
+    {
+        this.m_suspect = m_suspect;
+    }
     public void setRequiredPolice(boolean requiredPolice)
     {
         m_requiredPolice = requiredPolice;
@@ -65,5 +72,7 @@ public class Crime
     private boolean m_solved;
     private boolean m_requiredPolice;
     private UUID m_id;
+    private String m_suspect;
+
 
 }

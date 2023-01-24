@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -159,5 +160,24 @@ public class CrimeFragment extends Fragment
     {
         m_crime.SetDate(date);
         m_dateButton.setText(m_crime.GetDate().toString());
+    }
+
+    private String getCrimeReport()
+    {
+        int solvedStringId = m_crime.IsSolved() ? R.string.crime_report_solved : R.string.crime_report_unsolved;
+        String solvedString = getString(solvedStringId);
+        String dateFormat = "EEE, MMM dd";
+        String dateString = DateFormat.format(dateFormat, m_crime.GetDate()).toString();
+        String suspect = m_crime.GetSuspect();
+        int suspectStringId = null == suspect ? R.string.crime_report_no_suspect : R.string.crime_report_suspect;
+        suspect = getString(suspectStringId, suspect);
+
+        String report = getString(R.string.crime_report
+                , m_crime.GetTitle()
+                , dateString
+                , solvedString
+                , suspect);
+
+
     }
 }
