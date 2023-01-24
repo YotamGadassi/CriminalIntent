@@ -13,23 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
-
-import static android.widget.CompoundButton.OnCheckedChangeListener;
 
 import java.util.Date;
 import java.util.UUID;
@@ -79,6 +70,13 @@ public class CrimeFragment extends Fragment
                                                                        updateDate(date);
                                                                    }
                                                                });
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        CrimeLab.getInstance(getActivity()).updateCrime(m_crime);
     }
 
     @Nullable

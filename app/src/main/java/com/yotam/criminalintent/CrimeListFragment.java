@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class CrimeListFragment extends Fragment
 {
@@ -96,10 +98,35 @@ public class CrimeListFragment extends Fragment
             m_crimeList.add(crime);
         }
 
-        public void removeCrime(int index)
+        public void removeCrime(UUID crimeId)
         {
-            m_crimeList.remove(index);
+            m_crimeList.removeIf((Predicate<Crime>) crime -> {
+                if(crime.GetId().equals(crimeId))
+                {
+                    return true;
+                }
+                return false;
+            });
             notifyDataSetChanged();
+        }
+
+        public void updateCrime(Crime crime)
+        {
+            UUID crimeId = crime.GetId();
+            for(int i=0; i < m_crimeList.size(); ++i)
+            {
+                if(m_crimeList.get(i).GetId().equals(crimeId))
+                {
+                    m_crimeList.set(i, crime);
+                    notifyItemChanged(i);
+                    return;
+                }
+            }
+        }
+
+        public void setCrimes(List<Crime> crimes)
+        {
+            m_crimeList = crimes;
         }
 
         private List<Crime> m_crimeList;
@@ -130,24 +157,29 @@ public class CrimeListFragment extends Fragment
                                                                 if (result.getResultCode()
                                                                     == Activity.RESULT_OK)
                                                                 {
-                                                                    boolean isCrimeDeleted = result.getData()
-                                                                                                   .getExtras()
-                                                                                                   .getBoolean(
-                                                                                                           CrimeFragment.IS_DELETED,
-                                                                                                           false);
-                                                                    if (isCrimeDeleted)
-                                                                    {
-                                                                        UUID crimeUUID = (UUID) result.getData()
-                                                                                                      .getExtras()
-                                                                                                      .getSerializable(
-                                                                                                              CrimeFragment.DELETED_CRIME_UUID);
-                                                                        if (null != crimeUUID)
-                                                                        {
-                                                                            removeCrime(crimeUUID);
-                                                                        }
-                                                                    }
+                                                                    handleCrimeDeleted(result);
                                                                 }
                                                             });
+    }
+
+    private void handleCrimeDeleted(ActivityResult result)
+    {
+        boolean isCrimeDeleted = result.getData()
+                .getExtras()
+                .getBoolean(
+                        CrimeFragment.IS_DELETED,
+                        false);
+        if (isCrimeDeleted)
+        {
+            UUID crimeUUID = (UUID) result.getData()
+                    .getExtras()
+                    .getSerializable(
+                            CrimeFragment.DELETED_CRIME_UUID);
+            if (null != crimeUUID)
+            {
+                removeCrime(crimeUUID);
+            }
+        }
     }
 
     @Override
@@ -201,9 +233,9 @@ public class CrimeListFragment extends Fragment
                 Crime crime = new Crime();
                 CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
                 crimeLab.addCrime(crime);
-                int crimeIndex = crimeLab.getCrimeIndex(crime.GetId());
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crimeIndex);
                 m_crimeAdapter.addCrime(crime);
+                int crimeIndex = m_crimeAdapter.getItemCount() - 1;
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crimeIndex);
                 m_crimeAdapter.notifyItemInserted(crimeIndex);
                 m_lastPositionClicked = crimeIndex;
                 m_CrimeFragmentLauncher.launch(intent);
@@ -222,14 +254,16 @@ public class CrimeListFragment extends Fragment
 
     private void updateUI()
     {
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+
         if (null == m_crimeAdapter)
         {
-            CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
             m_crimeAdapter = new CrimeAdapter(crimeLab.getCrimes());
             m_recyclerView.setAdapter(m_crimeAdapter);
         }
         else
         {
+            m_crimeAdapter.setCrimes(crimeLab.getCrimes());
             m_crimeAdapter.notifyDataSetChanged();
         }
     }
@@ -258,10 +292,8 @@ public class CrimeListFragment extends Fragment
     private void removeCrime(UUID crimeId)
     {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
-        Crime crime = crimeLab.getCrime(crimeId);
-        int crimeIndex = crimeLab.getCrimeIndex(crimeId);
-        crimeLab.removeCrime(crime);
-        m_crimeAdapter.removeCrime(crimeIndex);
+        crimeLab.removeCrime(crimeId);
+        m_crimeAdapter.removeCrime(crimeId);
     }
 
 }

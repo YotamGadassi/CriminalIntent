@@ -29,8 +29,16 @@ public class Crime
     {
         return m_solved;
     }
+    public Crime()
+    {
+        this(UUID.randomUUID());
+    }
 
-    private UUID m_id;
+    public Crime(UUID id)
+    {
+        m_id = id;
+        m_date = new Date();
+    }
 
     public void SetTitle(String title)
     {
@@ -56,10 +64,6 @@ public class Crime
     private Date m_date;
     private boolean m_solved;
     private boolean m_requiredPolice;
+    private UUID m_id;
 
-    public Crime()
-    {
-        m_id = UUID.randomUUID();
-        m_date = new Date();
-    }
 }
