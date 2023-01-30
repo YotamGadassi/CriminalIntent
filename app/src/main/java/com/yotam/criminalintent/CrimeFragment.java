@@ -34,6 +34,7 @@ public class CrimeFragment extends Fragment
     private Crime m_crime;
     private EditText m_titleField;
     private Button m_dateButton;
+    private Button m_reportButton;
     private CheckBox m_solvedCheckBox;
 
     private ActivityResultLauncher<Intent> m_datePickerResultLauncher;
@@ -154,6 +155,16 @@ public class CrimeFragment extends Fragment
         m_solvedCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> m_crime.SetSolved(
                 isChecked));
 
+        m_reportButton = view.findViewById(R.id.crime_report);
+        m_reportButton.setOnClickListener(v->
+        {
+            Intent sendReportIntent = new Intent(Intent.ACTION_SEND);
+            sendReportIntent.setType("text/plain");
+            sendReportIntent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+            sendReportIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+            startActivity(sendReportIntent);
+        });
+
     }
 
     private void updateDate(Date date)
@@ -178,6 +189,6 @@ public class CrimeFragment extends Fragment
                 , solvedString
                 , suspect);
 
-
+        return report;
     }
 }
