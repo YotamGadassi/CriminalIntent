@@ -1,8 +1,15 @@
 package com.yotam.criminalintent;
 
+import static androidx.core.app.ShareCompat.*;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -20,10 +27,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ShareCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment
@@ -35,9 +44,12 @@ public class CrimeFragment extends Fragment
     private EditText m_titleField;
     private Button m_dateButton;
     private Button m_reportButton;
+    private Button m_suspectButton;
+    private Button m_suspectDialButton;
     private CheckBox m_solvedCheckBox;
 
     private ActivityResultLauncher<Intent> m_datePickerResultLauncher;
+    private ActivityResultLauncher<Intent> m_contactIntentLauncher;
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
@@ -72,6 +84,33 @@ public class CrimeFragment extends Fragment
                                                                        updateDate(date);
                                                                    }
                                                                });
+        m_contactIntentLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                                                            result ->
+                                                            {
+                                                                if(result.getResultCode() != Activity.RESULT_OK)
+                                                                {
+                                                                    return;
+                                                                }
+
+                                                                Uri contactsURI = result.getData().getData();
+                                                                String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+                                                                Cursor cursor = getActivity().getContentResolver().query(contactsURI, queryFields, null, null, null);
+                                                                try
+                                                                {
+                                                                    if(cursor.getCount() == 0)
+                                                                    {
+                                                                        return;
+                                                                    }
+                                                                    cursor.moveToFirst();
+                                                                    String suspectName = cursor.getString(0);
+                                                                    m_crime.SetSuspect(suspectName);
+                                                                    m_suspectButton.setText(suspectName);
+                                                                }
+                                                                finally
+                                                                {
+                                                                    cursor.close();
+                                                                }
+                                                            });
     }
 
     @Override
@@ -158,13 +197,40 @@ public class CrimeFragment extends Fragment
         m_reportButton = view.findViewById(R.id.crime_report);
         m_reportButton.setOnClickListener(v->
         {
-            Intent sendReportIntent = new Intent(Intent.ACTION_SEND);
+            Intent sendReportIntent = new IntentBuilder(getActivity()).getIntent().setAction(Intent.ACTION_SEND);
             sendReportIntent.setType("text/plain");
             sendReportIntent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
             sendReportIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+            //sendReportIntent = Intent.createChooser(sendReportIntent, getString(R.string.send_report));
             startActivity(sendReportIntent);
         });
 
+        m_suspectButton = view.findViewById(R.id.crime_suspect);
+        final Intent pickContactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        m_suspectButton.setOnClickListener(v ->
+        {
+            m_contactIntentLauncher.launch(pickContactIntent);
+        });
+
+        if(pickContactIntent.resolveActivity(getActivity().getPackageManager()) == null)
+        {
+            m_suspectButton.setEnabled(false);
+        }
+
+        m_suspectDialButton = view.findViewById(R.id.crime_suspect_dial);
+        m_suspectDialButton.setOnClickListener(v ->
+        {
+            Uri suspectPhone = getSuspectPhone(m_suspectButton.getText());
+        });
+
+
+    }
+
+    private Uri getSuspectPhone(CharSequence suspectName)
+    {
+        String[] columns = new String[]{ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.PhoneLookup.NUMBER};
+
+        return null;
     }
 
     private void updateDate(Date date)

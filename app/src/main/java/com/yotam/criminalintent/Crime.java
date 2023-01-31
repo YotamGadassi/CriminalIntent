@@ -42,6 +42,7 @@ public class Crime
     {
         m_id = id;
         m_date = new Date();
+        m_title = "";
     }
 
     public void SetTitle(String title)
