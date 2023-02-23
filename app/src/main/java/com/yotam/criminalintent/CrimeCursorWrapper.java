@@ -25,6 +25,7 @@ public class CrimeCursorWrapper extends CursorWrapper
         long date = getLong(getColumnIndex(CrimeDbSchema.CrimeTable.Cols.DATE));
         int isSolved = getInt(getColumnIndex(CrimeDbSchema.CrimeTable.Cols.SOLVED));
         String suspect = getString(getColumnIndex(CrimeDbSchema.CrimeTable.Cols.SUSPECT));
+        String suspectLookup = getString(getColumnIndex(CrimeDbSchema.CrimeTable.Cols.SUSPECT_LOOKUP));
 
         UUID crimeId = UUID.fromString(uuidString);
         Crime crime = new Crime(crimeId);
@@ -32,6 +33,7 @@ public class CrimeCursorWrapper extends CursorWrapper
         crime.SetDate(new Date(date));
         crime.SetSolved(isSolved != 0);
         crime.SetSuspect(suspect);
+        crime.setSuspectContactLookUp(suspectLookup);
 
         return crime;
     }

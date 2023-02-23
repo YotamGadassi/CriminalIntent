@@ -61,7 +61,7 @@ public class Crime
     }
     public void SetSuspect(String suspect)
     {
-        this.m_suspect = m_suspect;
+        m_suspect = suspect;
     }
     public void setRequiredPolice(boolean requiredPolice)
     {
@@ -74,6 +74,15 @@ public class Crime
     private boolean m_requiredPolice;
     private UUID m_id;
     private String m_suspect;
+    private String m_suspectContactLookUp;
 
+    public String getSuspectContactLookUp()
+    {
+        return m_suspectContactLookUp;
+    }
 
+    public void setSuspectContactLookUp(String suspectContactLookUp)
+    {
+        m_suspectContactLookUp = suspectContactLookUp;
+    }
 }
